@@ -19,6 +19,7 @@ project(binexport VERSION 10)  # Only major version is used
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 include(copts.cmake)
 include(util.cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # Use a copy of a subset of Boost that we ship
 set(Boost_NO_SYSTEM_PATHS TRUE)
@@ -30,6 +31,7 @@ set(Protobuf_USE_STATIC_LIBS TRUE)
 find_package(Boost 1.55 REQUIRED)
 find_package(Git)
 find_package(IdaSdk REQUIRED)
+find_package(BinaryNinjaApi)
 find_package(OpenSSL 1.0.2 REQUIRED)
 find_package(PostgreSQL 9.5 REQUIRED)
 find_package(Protobuf 3.0.0 REQUIRED)
@@ -106,6 +108,8 @@ add_library(binexport_shared STATIC
   util/filesystem.h
   util/format.cc
   util/format.h
+  util/logging.cc
+  util/logging.h
   util/status.cc
   util/status.h
   util/status_macros.h
@@ -164,22 +168,8 @@ add_test(BinExportTests binexport_test)
 # binexport2dump tool
 add_subdirectory(tools)
 
-# Code shared with the BinDiff plugin
-add_ida_library(binexport_plugin_shared STATIC
-  hash.cc
-  hash.h
-  ida/digest.cc
-  ida/digest.h
-  ida/log.cc
-  ida/log.h
-)
-ida_target_link_libraries(binexport_plugin_shared PUBLIC
-  absl::time
-  binexport_base
-)
-
-set(binexport_plugin_name binexport${binexport_VERSION_MAJOR})
-add_ida_plugin(${binexport_plugin_name}
+# Non-plugin code shared with BinDiff/the Binary Ninja plugin
+add_library(binexport_core
   address_references.cc
   address_references.h
   base_types.cc
@@ -192,16 +182,6 @@ add_ida_plugin(${binexport_plugin_name}
   call_graph.h
   comment.cc
   comment.h
-  database/initialize_constraints_postgresql_sql.h
-  database/initialize_indices_postgresql_sql.h
-  database/initialize_tables_postgresql_sql.h
-  database/maintenance_postgresql_sql.h
-  database/postgresql.cc
-  database/postgresql.h
-  database/postgresql_writer.cc
-  database/postgresql_writer.h
-  database/query_builder.cc
-  database/query_builder.h
   dump_writer.cc
   dump_writer.h
   edge.cc
@@ -216,6 +196,62 @@ add_ida_plugin(${binexport_plugin_name}
   flow_graph.h
   function.cc
   function.h
+  instruction.cc
+  instruction.h
+  library_manager.cc
+  library_manager.h
+  operand.cc
+  operand.h
+  statistics_writer.cc
+  statistics_writer.h
+  type_system.cc
+  type_system.h
+  version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/version.cc
+  virtual_memory.cc
+  virtual_memory.h
+  x86_nop.cc
+  x86_nop.h
+)
+target_link_libraries(binexport_core PUBLIC
+  absl::bad_optional_access
+  absl::flat_hash_map
+  absl::flat_hash_set
+  absl::hash
+  absl::node_hash_map
+  absl::node_hash_set
+  absl::optional
+  absl::strings
+  absl::time
+  binexport_shared
+)
+
+# Code shared with the BinDiff plugin
+add_ida_library(binexport_plugin_shared STATIC
+  hash.cc
+  hash.h
+  ida/digest.cc
+  ida/digest.h
+  ida/log_handler.cc
+  ida/log_handler.h
+)
+ida_target_link_libraries(binexport_plugin_shared PUBLIC
+  absl::time
+  binexport_base
+)
+
+set(binexport_plugin_name binexport${binexport_VERSION_MAJOR})
+add_ida_plugin(${binexport_plugin_name}
+  database/initialize_constraints_postgresql_sql.h
+  database/initialize_indices_postgresql_sql.h
+  database/initialize_tables_postgresql_sql.h
+  database/maintenance_postgresql_sql.h
+  database/postgresql.cc
+  database/postgresql.h
+  database/postgresql_writer.cc
+  database/postgresql_writer.h
+  database/query_builder.cc
+  database/query_builder.h
   ida/arm.cc
   ida/arm.h
   ida/dalvik.cc
@@ -237,22 +273,6 @@ add_ida_plugin(${binexport_plugin_name}
   ida/types_container.h
   ida/ui.cc
   ida/ui.h
-  instruction.cc
-  instruction.h
-  library_manager.cc
-  library_manager.h
-  operand.cc
-  operand.h
-  statistics_writer.cc
-  statistics_writer.h
-  type_system.cc
-  type_system.h
-  version.h
-  ${CMAKE_CURRENT_BINARY_DIR}/version.cc
-  virtual_memory.cc
-  virtual_memory.h
-  x86_nop.cc
-  x86_nop.h
 )
 if(WIN32)
   list(APPEND binexport_libraries crypt32.lib
@@ -271,7 +291,7 @@ ida_target_link_libraries(${binexport_plugin_name}
   absl::optional
   absl::strings
   absl::time
-  binexport_shared
+  binexport_core
   binexport_plugin_shared
   ${PostgreSQL_LIBRARIES}
   # OpenSSL must come after PostgreSQL
@@ -286,7 +306,12 @@ ida_install(TARGETS ${binexport_plugin_name}
             RUNTIME DESTINATION binexport-prefix
             LIBRARY DESTINATION binexport-prefix)
 
-# Experimental BinExport reader library
+# Binary Ninja plugin (experimental)
+if(BinaryNinjaApi_FOUND)
+  add_subdirectory(binaryninja)
+endif()
+
+# BinExport reader library
 add_library(binexport_reader STATIC
   reader/call_graph.cc
   reader/call_graph.h

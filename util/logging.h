@@ -1,4 +1,4 @@
-// Copyright 2011-2019 Google LLC. All Rights Reserved.
+// Copyright 2019 Google LLC. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IDA_LOG_H_
-#define IDA_LOG_H_
+#ifndef UTIL_LOG_H_
+#define UTIL_LOG_H_
 
-#include "third_party/zynamics/binexport/types.h"
+#include <functional>
+#include <string>
+
+#include "base/logging.h"
+#include "third_party/zynamics/binexport/util/status.h"
+
+namespace security::binexport {
 
 struct LoggingOptions {
   LoggingOptions& set_alsologtostderr(bool value) {
@@ -32,10 +38,17 @@ struct LoggingOptions {
   std::string log_filename;
 };
 
+// Logs a single line according to the current global logging options.
+void LogLine(LogLevel level, const char* filename, int line,
+             const std::string& message);
+
 // Initializes logging. Not thread safe.
-bool InitLogging(const LoggingOptions& options);
+not_absl::Status InitLogging(const LoggingOptions& options,
+                             LogHandler* log_handler);
 
 // Shuts down logging and closes the log file. Not thread safe.
 void ShutdownLogging();
 
-#endif  // IDA_LOG_H_
+}  // namespace security::binexport
+
+#endif  // UTIL_LOG_H_

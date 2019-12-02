@@ -1,7 +1,8 @@
-# Editor backup files
+# Editor backup files/IDE files
 *~
 .*.swp
 .*.swo
+.vscode
 
 # Prevent to accidentally add IDA SDK
 third_party/idasdk/*
@@ -16,6 +17,7 @@ third_party/protobuf/*
 build_linux/*
 build_msvc/*
 build_mac/*
+build/*
 third_party/zynamics/binexport
 
 # Auto-generated

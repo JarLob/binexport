@@ -40,13 +40,14 @@
 #include "third_party/zynamics/binexport/flow_analyzer.h"
 #include "third_party/zynamics/binexport/flow_graph.h"
 #include "third_party/zynamics/binexport/ida/digest.h"
-#include "third_party/zynamics/binexport/ida/log.h"
 #include "third_party/zynamics/binexport/ida/names.h"
+#include "third_party/zynamics/binexport/ida/log_handler.h"
 #include "third_party/zynamics/binexport/ida/ui.h"
 #include "third_party/zynamics/binexport/instruction.h"
 #include "third_party/zynamics/binexport/statistics_writer.h"
 #include "third_party/zynamics/binexport/util/filesystem.h"
 #include "third_party/zynamics/binexport/util/format.h"
+#include "third_party/zynamics/binexport/util/logging.h"
 #include "third_party/zynamics/binexport/util/timer.h"
 #include "third_party/zynamics/binexport/version.h"
 #include "third_party/zynamics/binexport/virtual_memory.h"
@@ -233,7 +234,7 @@ void idaapi ButtonTextExport(TWidget** /* fields */, int) {
   }
 
   if (FileExists(filename) &&
-        ask_yn(0, "'%s' already exists - overwrite?", filename) != 1) {
+      ask_yn(0, "'%s' already exists - overwrite?", filename) != 1) {
     return;
   }
 
@@ -267,7 +268,7 @@ void idaapi ButtonStatisticsExport(TWidget** /* fields */, int) {
   }
 
   if (FileExists(filename) &&
-        ask_yn(0, "'%s' already exists - overwrite?", filename) != 1) {
+      ask_yn(0, "'%s' already exists - overwrite?", filename) != 1) {
     return;
   }
 
@@ -439,9 +440,11 @@ ssize_t idaapi UiHook(void*, int event_id, va_list arguments) {
 int Plugin::Init() {
   alsologtostderr_ =
       absl::AsciiStrToUpper(GetArgument("AlsoLogToStdErr")) == "TRUE";
-  if (!InitLogging(LoggingOptions{}
-                       .set_alsologtostderr(alsologtostderr_)
-                       .set_log_filename(GetArgument("LogFile")))) {
+  if (auto status = InitLogging(LoggingOptions{}
+                                    .set_alsologtostderr(alsologtostderr_)
+                                    .set_log_filename(GetArgument("LogFile")),
+                                &IdaLogHandler);
+      !status.ok()) {
     LOG(INFO) << "Error initializing logging, skipping BinExport plugin";
     return PLUGIN_SKIP;
   }
@@ -502,7 +505,7 @@ bool Plugin::Run(size_t argument) {
       DoExport(static_cast<ExportMode>(argument), module, connection_string);
     } else {
       ask_form(GetDialog(), ButtonBinaryExport, ButtonTextExport,
-                     ButtonStatisticsExport);
+               ButtonStatisticsExport);
     }
   } catch (const std::exception& error) {
     LOG(INFO) << "export cancelled: " << error.what();
