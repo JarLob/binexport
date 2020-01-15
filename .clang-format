@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 ---
 Language:        Cpp
 BasedOnStyle:  Google
 ...
+=======
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Left
+>>>>>>> origin/master

@@ -16,6 +16,9 @@ cmake_minimum_required(VERSION 3.12)
 cmake_policy(VERSION 3.12)
 project(binexport VERSION 10)  # Only major version is used
 
+# XXX: Replace for OSS!
+set(ThirdParty_DIR ${PROJECT_SOURCE_DIR}/../binexport10_g3/google3/third_party)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 include(copts.cmake)
 include(util.cmake)
@@ -140,6 +143,7 @@ add_executable(binexport_shared_test
   util/filesystem_test.cc
   util/format_test.cc
   util/status_macros_test.cc
+  util/status_matchers.h
   util/status_test.cc
   util/statusor_test.cc
   util/timer_test.cc
@@ -299,6 +303,7 @@ ida_target_link_libraries(${binexport_plugin_name}
   absl::time
   binexport_core
   binexport_plugin_shared
+  binexport_shared
   ${PostgreSQL_LIBRARIES}
   # OpenSSL must come after PostgreSQL
   OpenSSL::SSL
