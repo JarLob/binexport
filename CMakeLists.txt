@@ -19,6 +19,7 @@ project(binexport VERSION 11)  # Only major version is used
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 include(copts.cmake)
 include(util.cmake)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # Use a copy of a subset of Boost that we ship
@@ -55,13 +56,14 @@ create_directory_symlink(${PROJECT_BINARY_DIR} ${_binexport_gen}/binexport)
 
 # Find the Git revision number, if applicable
 set(REVISION unknown)
-if(GIT_FOUND)
-  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+if(NOT "$ENV{KOKORO_PIPER_CHANGELIST}" STREQUAL "")
+  set(REVISION $ENV{KOKORO_PIPER_CHANGELIST})
+elseif(GIT_FOUND)
+  execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+                  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
                   OUTPUT_VARIABLE REVISION ERROR_QUIET)
-  if(NOT ${REVISION} STREQUAL "")
-    string(STRIP ${REVISION} REVISION)
-  elseif(NOT $ENV{KOKORO_PIPER_CHANGELIST} STREQUAL "")
-    set(REVISION $ENV{KOKORO_PIPER_CHANGELIST})
+  if(NOT REVISION STREQUAL "")
+    string(STRIP "${REVISION}" REVISION)
   else()
     set(REVISION internal)
   endif()
