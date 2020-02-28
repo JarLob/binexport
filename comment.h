@@ -1,4 +1,4 @@
-// Copyright 2011-2019 Google LLC. All Rights Reserved.
+// Copyright 2011-2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ class Comment {
     POSTERIOR = 3,
     FUNCTION = 4,
     LOCATION = 5,
-    GLOBALREFERENCE = 6,
-    LOCALREFERENCE = 7,
+    GLOBAL_REFERENCE = 6,
+    LOCAL_REFERENCE = 7,
     STRUCTURE = 8,
     INVALID
   };

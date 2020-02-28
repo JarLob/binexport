@@ -1,4 +1,4 @@
-// Copyright 2011-2019 Google LLC. All Rights Reserved.
+// Copyright 2011-2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,16 +54,9 @@
 
 namespace security::binexport {
 
-constexpr char Plugin::kComment[];
-constexpr char Plugin::kHotKey[];
-
-std::string GetArgument(const char* name) {
+std::string GetArgument(absl::string_view name) {
   const char* option =
       get_plugin_options(absl::StrCat("BinExport", name).c_str());
-  if (option == nullptr) {
-    // Try old name as well.
-    get_plugin_options(absl::StrCat("Exporter", name).c_str());
-  }
   return option ? option : "";
 }
 

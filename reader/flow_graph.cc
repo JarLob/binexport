@@ -1,4 +1,4 @@
-// Copyright 2011-2019 Google LLC. All Rights Reserved.
+// Copyright 2011-2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ uint32_t GetEdgeTypeFromProto(BinExport2::FlowGraph::Edge::Type type) {
       return FlowGraph::kEdgeSwitch;
     default:
       LOG(QFATAL) << "Invalid edge type: " << type;
+      return FlowGraph::kEdgeUnconditional;  // Not reached
   }
 }
 

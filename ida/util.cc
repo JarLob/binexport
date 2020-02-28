@@ -12,23 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IDA_PPC_H_
-#define IDA_PPC_H_
+#include "third_party/zynamics/binexport/ida/util.h"
 
-#include "third_party/zynamics/binexport/call_graph.h"
-#include "third_party/zynamics/binexport/flow_graph.h"
-#include "third_party/zynamics/binexport/instruction.h"
-#include "third_party/zynamics/binexport/type_system.h"
-#include "third_party/zynamics/binexport/types.h"
-
-class insn_t;
+#include "third_party/absl/strings/string_view.h"
 
 namespace security::binexport {
 
-Instruction ParseInstructionIdaPpc(const insn_t& instruction,
-                                   CallGraph* call_graph, FlowGraph* flow_graph,
-                                   TypeSystem* type_system);
+std::string ToString(const qstring& ida_string) {
+  return std::string(ida_string.c_str(), ida_string.length());
+}
+
+absl::string_view ToStringView(const qstring& ida_string) {
+  return absl::string_view(&*ida_string.begin(), ida_string.length());
+}
 
 }  // namespace security::binexport
-
-#endif  // IDA_PPC_H_

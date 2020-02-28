@@ -1,4 +1,4 @@
-# Copyright 2011-2019 Google LLC. All Rights Reserved.
+# Copyright 2011-2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 # limitations under the License.
 
 ExternalProject_Add(absl
-  GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-  GIT_TAG 88a152ae747c3c42dc9167d46c590929b048d436
-  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/absl
-  # Just use CMake to clone into directory
+  GIT_REPOSITORY    https://github.com/abseil/abseil-cpp
+  GIT_TAG           0033c9ea91a52ade7c6b725aa2ef3cbe15463421 # 2020-02-25
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/absl"
   CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
 )

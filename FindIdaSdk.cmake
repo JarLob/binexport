@@ -1,4 +1,4 @@
-# Copyright 2011-2019 Google LLC. All Rights Reserved.
+# Copyright 2011-2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,6 @@
 # ----------
 #
 # Locates and configures the IDA Pro SDK. Supports version 7.0 or higher.
-#
-# Use this module by invoking find_package with the form:
-#
-#   find_package(IdaSdk
-#                [REQUIRED]  # Fail with an error if IDA SDK is not found
-#               )
 #
 # Use this module by invoking find_package with the form:
 #
