@@ -61,10 +61,6 @@
 
 namespace security::binexport {
 
-std::string ToString(const qstring& ida_string) {
-  return std::string(ida_string.c_str(), ida_string.length());
-}
-
 enum Architecture { kX86 = 0, kArm, kPpc, kMips, kGeneric, kDalvik };
 
 bool IsCode(Address address) {
